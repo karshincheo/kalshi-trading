@@ -134,18 +134,31 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
     start_date = date.fromisoformat(args.start_date) if args.start_date else None
     end_date = date.fromisoformat(args.end_date) if args.end_date else None
 
-    df = pipeline.build_dataset(start_date, end_date)
+    if args.dataset:
+        import pandas as pd
+
+        df = pd.read_parquet(args.dataset)
+        df["target_date"] = pd.to_datetime(df["target_date"]).dt.date
+    else:
+        df = pipeline.build_dataset(start_date, end_date)
     if df.empty:
         print("ERROR: No data available.")
         sys.exit(1)
 
-    _, _, holdout = pipeline.split(df)
+    if args.dataset:
+        # Prebuilt sample: evaluate on the full frame (demo of the evaluator,
+        # not an out-of-sample research result).
+        holdout = df
+        label = "sample"
+    else:
+        _, _, holdout = pipeline.split(df)
+        label = "holdout"
     if holdout.empty:
         print("ERROR: Holdout set is empty.")
         sys.exit(1)
 
-    print(f"Holdout set: {len(holdout)} rows")
-    result = evaluator.evaluate(strategy_code, holdout, label="holdout")
+    print(f"{label.capitalize()} set: {len(holdout)} rows")
+    result = evaluator.evaluate(strategy_code, holdout, label=label)
 
     print()
     print("=" * 40)
@@ -192,6 +205,12 @@ def main() -> None:
     eval_parser.add_argument("strategy_file", type=str, help="Path to strategy.py")
     eval_parser.add_argument("--start-date", type=str, default=None, help="Data start date (YYYY-MM-DD)")
     eval_parser.add_argument("--end-date", type=str, default=None, help="Data end date (YYYY-MM-DD)")
+    eval_parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Path to a prebuilt dataset parquet (skips the cache rebuild; see data/autoresearch/sample/)",
+    )
 
     args = parser.parse_args()
 
