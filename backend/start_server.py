@@ -15,8 +15,10 @@ sys.path = [p for p in sys.path if p and os.path.isabs(p)]
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
-# Change to a tmp dir so any stray getcwd() calls succeed
-os.chdir("/tmp")
+# Run from the backend directory so .env loading and the relative
+# sqlite DATABASE_URL resolve to the same paths alembic used.
+os.chdir(BACKEND_DIR)
+os.makedirs("data", exist_ok=True)
 
 # Now import and run uvicorn
 import uvicorn  # noqa: E402

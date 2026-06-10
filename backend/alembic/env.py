@@ -19,6 +19,10 @@ from app.models.portfolio_snapshot import PortfolioSnapshot
 from app.models.strategy_config import StrategyConfig
 from app.models.backtest_run import BacktestRun, BacktestTrade
 from app.models.external_data import ExternalData
+
+import os as _os
+# SQLite can't create parent directories; make sure ./data exists before migrating.
+_os.makedirs(_os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "data"), exist_ok=True)
 from app.autoresearch.models import AutoresearchRun, AutoresearchIteration
 
 # this is the Alembic Config object
