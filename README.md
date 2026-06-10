@@ -1,24 +1,24 @@
 # Kalshi Trading Bot
 
-An autonomous prediction market trading system for [Kalshi](https://kalshi.com), combining five production-grade trading strategies with an LLM-driven research loop that self-improves temperature market strategies overnight.
+An autonomous prediction market trading system for [Kalshi](https://kalshi.com): five trading strategies with paper-trading support, plus an LLM-driven research loop that writes, backtests, and evolves temperature-market strategies overnight.
+
+> **Provenance:** built locally over several weeks and imported in one commit; now developed in the open, so the history starts thin. This repo contains the Python backend — the monitoring dashboard lives in a private deployment.
 
 ---
 
 ## Architecture
 
 ```
-kalshi-trading/
-├── backend/                    # FastAPI trading bot + autoresearch engine
-│   └── app/
-│       ├── autoresearch/       # Autonomous Climate Quant Researcher
-│       ├── broker/             # Kalshi API client + PaperBroker simulator
-│       ├── core/
-│       │   ├── strategies/     # 5 live trading strategies
-│       │   ├── math/           # Kelly, DEPO, HRP, Brier metrics
-│       │   └── risk/           # Circuit breakers
-│       ├── services/           # Trading engine, backtester, portfolio
-│       └── api/                # REST + WebSocket endpoints
-└── frontend/                   # Next.js dashboard
+backend/                        # FastAPI trading bot + autoresearch engine
+└── app/
+    ├── autoresearch/           # Autonomous Climate Quant Researcher
+    ├── broker/                 # Kalshi API client + PaperBroker simulator
+    ├── core/
+    │   ├── strategies/         # 5 trading strategies
+    │   ├── math/               # Kelly, DEPO, HRP, Brier metrics
+    │   └── risk/               # Circuit breakers
+    ├── services/               # Trading engine, backtester, portfolio
+    └── api/                    # REST + WebSocket endpoints
 ```
 
 ---
@@ -77,7 +77,6 @@ The `app/autoresearch/` module implements an LLM-driven research loop that autom
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 18+ (frontend only)
 
 ### Backend
 
@@ -101,18 +100,28 @@ python start_server.py
 
 Backend runs at `http://localhost:8000`. API docs at `http://localhost:8000/docs`.
 
-### Frontend
+### Troubleshooting
 
-```bash
-cd frontend
-npm install
-npm run dev
-# Runs at http://localhost:3001
-```
+- `unable to open database file` — the SQLite data directory is created on first
+  run; if you see this from alembic, run `mkdir -p data` inside `backend/` first.
+- `BackendUnavailable` from pip — upgrade pip/setuptools (`pip install -U pip setuptools`).
+- No API keys are needed in `BROKER_MODE=paper`; live mode requires Kalshi credentials in `.env`.
 
 ---
 
 ## Autoresearch CLI
+
+**Try the evaluator with zero API keys** — a real collected dataset (185 temperature-market
+snapshots + weather features) is bundled:
+
+```bash
+cd backend
+python -m app.autoresearch evaluate app/autoresearch/strategies/seed_strategy.py \
+    --dataset data/autoresearch/sample/backtest_sample.parquet
+# Prints Brier score, win rate, drawdown for the seed strategy in ~25s, fully offline.
+```
+
+The full loop:
 
 ```bash
 cd backend
