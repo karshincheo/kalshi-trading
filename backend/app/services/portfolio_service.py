@@ -11,7 +11,7 @@ from app.core.math.metrics import (
     sharpe_ratio, sortino_ratio, max_drawdown, calmar_ratio,
     win_rate, profit_factor, avg_win_loss, equity_to_returns
 )
-from app.schemas.portfolio import PortfolioMetrics, AttributionRow
+from app.schemas.portfolio import PortfolioMetrics
 
 if TYPE_CHECKING:
     from app.broker.base import IBroker
@@ -42,10 +42,6 @@ class PortfolioService:
 
     async def compute_metrics(self, period_days: int = 30) -> PortfolioMetrics:
         """Compute trading metrics for the specified period."""
-        try:
-            fills = await self._broker.get_fills(limit=500)
-        except Exception:
-            fills = []
 
         # Get equity history for period
         since = datetime.now(timezone.utc) - timedelta(days=period_days)

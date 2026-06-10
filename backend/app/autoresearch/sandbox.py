@@ -17,11 +17,9 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 from textwrap import dedent
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 

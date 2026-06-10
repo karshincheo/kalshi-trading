@@ -9,12 +9,10 @@ This module is immutable — the agent cannot modify it.
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
-import numpy as np
 
 from app.autoresearch.config import AutoresearchSettings
-from app.autoresearch.prepare import AGENT_COLUMNS, DataPipeline
+from app.autoresearch.prepare import AGENT_COLUMNS
 from app.autoresearch.sandbox import execute_strategy, validate_strategy_source
 from app.autoresearch.scoring import EvaluationResult
 from app.core.math.kelly import kelly_full, kelly_for_no
@@ -248,7 +246,6 @@ class Evaluator:
     @staticmethod
     def _position_value(positions: dict, df, current_idx: int) -> float:
         """Estimate current position value using latest mid prices."""
-        import pandas as pd
 
         value = 0.0
         for ticker, pos in positions.items():

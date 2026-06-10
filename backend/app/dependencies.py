@@ -11,9 +11,7 @@ Usage in routes:
 """
 from __future__ import annotations
 
-from typing import Optional
 
-from fastapi import Depends
 
 from app.config import settings, BrokerMode
 

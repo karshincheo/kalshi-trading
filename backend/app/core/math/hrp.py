@@ -17,13 +17,11 @@ that Outperform Out of Sample.
 """
 from __future__ import annotations
 
-import math
-from typing import Optional
 
 import numpy as np
 
 try:
-    from scipy.cluster.hierarchy import linkage, to_tree
+    from scipy.cluster.hierarchy import linkage
     from scipy.spatial.distance import squareform
     SCIPY_AVAILABLE = True
 except ImportError:

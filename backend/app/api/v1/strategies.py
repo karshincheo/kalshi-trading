@@ -1,7 +1,6 @@
-import json
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
-from app.dependencies import get_trading_engine, get_scanner_service
+from app.dependencies import get_trading_engine
 from app.schemas.strategy import StrategyOut, StrategyUpdate, SignalOut
 
 router = APIRouter(prefix="/strategies", tags=["strategies"])

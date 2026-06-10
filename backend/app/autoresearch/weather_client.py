@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
@@ -19,7 +19,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-_C_TO_F = lambda c: c * 9.0 / 5.0 + 32.0
+def _c_to_f(c: float) -> float:
+    return c * 9.0 / 5.0 + 32.0
 
 
 class OpenMeteoClient:
@@ -83,9 +84,9 @@ class OpenMeteoClient:
 
         df = pd.DataFrame({
             "date": pd.to_datetime(daily["time"]).date,
-            "high_f": [_C_TO_F(t) if t is not None else np.nan for t in daily.get("temperature_2m_max", [])],
-            "low_f": [_C_TO_F(t) if t is not None else np.nan for t in daily.get("temperature_2m_min", [])],
-            "mean_f": [_C_TO_F(t) if t is not None else np.nan for t in daily.get("temperature_2m_mean", [])],
+            "high_f": [_c_to_f(t) if t is not None else np.nan for t in daily.get("temperature_2m_max", [])],
+            "low_f": [_c_to_f(t) if t is not None else np.nan for t in daily.get("temperature_2m_min", [])],
+            "mean_f": [_c_to_f(t) if t is not None else np.nan for t in daily.get("temperature_2m_mean", [])],
             "precip_mm": daily.get("precipitation_sum", []),
             "wind_kph": daily.get("wind_speed_10m_max", []),
             "humidity_pct": daily.get("relative_humidity_2m_mean", []),
@@ -152,9 +153,9 @@ class OpenMeteoClient:
         mean_c = _safe_get("temperature_2m_mean", idx)
 
         return {
-            "high_f": _C_TO_F(high_c) if not np.isnan(high_c) else np.nan,
-            "low_f": _C_TO_F(low_c) if not np.isnan(low_c) else np.nan,
-            "mean_f": _C_TO_F(mean_c) if not np.isnan(mean_c) else np.nan,
+            "high_f": _c_to_f(high_c) if not np.isnan(high_c) else np.nan,
+            "low_f": _c_to_f(low_c) if not np.isnan(low_c) else np.nan,
+            "mean_f": _c_to_f(mean_c) if not np.isnan(mean_c) else np.nan,
             "precip_mm": _safe_get("precipitation_sum", idx),
             "wind_kph": _safe_get("wind_speed_10m_max", idx),
             "humidity_pct": _safe_get("relative_humidity_2m_mean", idx),
@@ -177,9 +178,6 @@ class OpenMeteoClient:
         day = target_date.day
         current_year = target_date.year
 
-        # Collect historical temps for this calendar date across years
-        highs = []
-        lows = []
 
         # Fetch in large chunks to minimize API calls
         start_year = max(current_year - years, 1950)

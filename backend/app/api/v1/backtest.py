@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 
 from app.dependencies import get_broker
-from app.schemas.backtest import BacktestRequest, BacktestRunOut, BacktestResult, FoldMetrics, BacktestTradeOut
+from app.schemas.backtest import BacktestRequest, BacktestRunOut
 from app.services.backtest_engine import BacktestEngine
 from app.core.strategies import STRATEGY_REGISTRY
 

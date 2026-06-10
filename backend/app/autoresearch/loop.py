@@ -10,14 +10,13 @@ Stops when: max iterations, target Brier achieved, plateau detected, or SIGINT.
 """
 from __future__ import annotations
 
-import json
 import logging
 import re
 import signal
 import time
 import uuid
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -139,7 +138,7 @@ class Orchestrator:
 
         # Step 2: Initialize git
         self.git.init_repo()
-        branch = self.git.create_branch(run_id)
+        self.git.create_branch(run_id)
 
         # Step 3: Load starting strategy
         if resume_code:
@@ -226,7 +225,7 @@ class Orchestrator:
                 )
 
             # Commit to git
-            commit_hash = self.git.commit_iteration(
+            self.git.commit_iteration(
                 iteration=iteration,
                 strategy_code=new_code,
                 val_brier=new_val_result.brier_score,

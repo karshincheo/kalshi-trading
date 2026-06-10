@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # The unit tests cover the pure quant core (Kelly/Brier/DEPO/HRP) and the
+      # autoresearch AST validator — deliberately runnable without the full
+      # FastAPI/anthropic stack or any API keys.
+      - run: pip install numpy scipy pytest ruff
+      - name: Lint
+        run: ruff check backend
+      - name: Tests
+        run: pytest app/tests -q --strict-markers
+        working-directory: backend

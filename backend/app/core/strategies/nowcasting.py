@@ -28,8 +28,7 @@ In paper/demo mode without BLS API key:
 """
 from __future__ import annotations
 
-import math
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from app.core.strategies.base import AbstractStrategy, Signal

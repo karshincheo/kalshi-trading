@@ -34,7 +34,7 @@ when the edge exceeds min_edge_bps basis points.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from app.core.strategies.base import AbstractStrategy, Signal

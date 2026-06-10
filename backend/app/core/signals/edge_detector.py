@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, timezone
-from typing import Optional
 
 from app.core.strategies.base import Signal
 from app.schemas.market import MarketOut

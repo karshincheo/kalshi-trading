@@ -289,7 +289,7 @@ class PaperBroker:
             if pos is None or pos.count == 0:
                 return False
             sell_count = min(order.count, pos.count)
-            realized = pos.reduce(sell_count, fill_price)
+            pos.reduce(sell_count, fill_price)
             self._cash += fill_price * sell_count
             order.count = sell_count
 

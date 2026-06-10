@@ -1,7 +1,6 @@
 from __future__ import annotations
-from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Float, Integer, DateTime, Text
+from sqlalchemy import String, Float, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base, TimestampMixin
 

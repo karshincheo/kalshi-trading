@@ -19,17 +19,15 @@ References:
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta, date
-from typing import Any, Optional, AsyncIterator, Callable
+from typing import Optional, Callable
 
 from app.broker.paper_broker import PaperBroker
 from app.core.math.kelly import kelly_full
-from app.core.math.metrics import compute_all_metrics, equity_to_returns
+from app.core.math.metrics import compute_all_metrics
 from app.core.strategies.base import AbstractStrategy
 from app.schemas.market import MarketOut
 from app.schemas.order import OrderRequest
@@ -354,7 +352,6 @@ class BacktestEngine:
                 try:
                     order = await broker.place_order(req)
                     if order.filled_count > 0:
-                        fill_cost = order.avg_fill_price * order.filled_count if order.avg_fill_price else 0
                         trades.append({
                             "fold_idx": fold.fold_idx,
                             "ticker": signal.ticker,

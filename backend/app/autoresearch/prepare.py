@@ -10,7 +10,7 @@ before passing data to the strategy sandbox.
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import date
 from typing import Optional
 
 import numpy as np

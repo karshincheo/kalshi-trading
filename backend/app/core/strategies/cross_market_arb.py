@@ -31,7 +31,7 @@ In this implementation, we match markets by:
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Optional
 
 from app.core.strategies.base import AbstractStrategy, Signal

@@ -28,7 +28,7 @@ Parameters here are approximations based on publicly available info.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from app.core.strategies.base import AbstractStrategy, Signal
 from app.schemas.market import MarketOut

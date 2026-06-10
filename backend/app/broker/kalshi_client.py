@@ -14,7 +14,6 @@ Public market data endpoints (no auth required):
 from __future__ import annotations
 
 import base64
-import hashlib
 import time
 import uuid
 from datetime import datetime, timezone

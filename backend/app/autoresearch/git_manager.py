@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 import subprocess
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -91,7 +90,7 @@ class GitManager:
             parts = tag.split("-")
             try:
                 brier = float(parts[-1])
-                iteration = int(parts[1])
+                int(parts[1])  # validates the iteration field
                 if brier < best_brier:
                     best_brier = brier
                     best_tag = tag
