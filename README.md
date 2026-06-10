@@ -1,5 +1,7 @@
 # Kalshi Trading Bot
 
+[![CI](https://github.com/karshincheo/kalshi-trading/actions/workflows/ci.yml/badge.svg)](https://github.com/karshincheo/kalshi-trading/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An autonomous prediction market trading system for [Kalshi](https://kalshi.com): five trading strategies with paper-trading support, plus an LLM-driven research loop that writes, backtests, and evolves temperature-market strategies overnight.
 
 > **Provenance:** built locally over several weeks and imported in one commit; now developed in the open, so the history starts thin. This repo contains the Python backend — the monitoring dashboard lives in a private deployment.
