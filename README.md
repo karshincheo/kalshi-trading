@@ -65,6 +65,14 @@ The `app/autoresearch/` module implements an LLM-driven research loop that autom
 
 ---
 
+## AI tooling & techniques
+
+- **Model:** Claude (Sonnet) via the Anthropic API writes the candidate strategy code on every research iteration.
+- **Closed-loop code generation with guardrails:** prompt → extract code → AST validation → sandboxed backtest → accept/reject on score → git commit. Every accepted strategy lands as a commit, so the model's progress has a full audit trail.
+- **Evals as the optimization target:** the loop optimizes out-of-sample Brier score with a Sharpe gate — measured calibration on data the model never trained against, not subjective judgment of generated code.
+
+---
+
 ## Quickstart
 
 ### Prerequisites
