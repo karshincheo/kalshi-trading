@@ -145,16 +145,23 @@ def extract_target_date(market: MarketOut) -> Optional[date]:
     ticker = market.event_ticker or market.ticker
     m = _TICKER_DATE_RE.search(ticker)
     if m:
-        day = int(m.group(1))
+        # Kalshi date segments are YEAR-MONTH-DAY, e.g. 26JUN11 -> 2026-06-11.
+        year_short = int(m.group(1))
         month_str = m.group(2).upper()
-        year_short = int(m.group(3))
+        day = int(m.group(3))
         month = _MONTH_MAP.get(month_str)
         if month:
-            year = 2000 + year_short
             try:
-                return date(year, month, day)
+                candidate = date(2000 + year_short, month, day)
             except ValueError:
-                pass
+                candidate = None
+            # Guard against format drift: the target date must sit near the
+            # market close. If it doesn't, fall through to close_time below.
+            if candidate is not None:
+                if market.close_time is None:
+                    return candidate
+                if abs((candidate - market.close_time.date()).days) <= 2:
+                    return candidate
 
     # Fallback: try to parse from close_time
     if market.close_time:
@@ -173,8 +180,15 @@ def extract_city_and_date(
     return None
 
 
+_TICKER_STRIKE_RE = __import__("re").compile(r"-[TB](\d+(?:\.\d+)?)$")
+
+
 def extract_strike_temp(market: MarketOut) -> Optional[float]:
-    """Extract the strike temperature (°F) from the market title."""
+    """Extract the strike temperature (°F) from the ticker suffix or title."""
+    # Current Kalshi format encodes the strike in the ticker: -T95, -B94.5
+    m = _TICKER_STRIKE_RE.search(market.ticker or "")
+    if m:
+        return float(m.group(1))
     title = market.title or ""
     m = _STRIKE_RE.search(title)
     if m:

@@ -69,6 +69,7 @@ class TemperatureMarketCollector:
                 continue
 
             orderbook = self._fetch_orderbook(market.ticker)
+            time.sleep(0.15)  # pace orderbook calls under the public rate limit
 
             snapshots.append({
                 "timestamp": now.isoformat(),
@@ -169,38 +170,39 @@ class TemperatureMarketCollector:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _fetch_temperature_markets(self, status: str = "active") -> list[MarketOut]:
-        """Fetch all temperature markets from Kalshi public API."""
+    def _fetch_temperature_series(self) -> list[str]:
+        """List temperature series tickers from the Climate and Weather category."""
+        try:
+            resp = self._client.get("/series", params={"category": "Climate and Weather"})
+            resp.raise_for_status()
+        except httpx.HTTPError as e:
+            logger.warning("Kalshi series API error: %s", e)
+            return []
+        tickers = [s.get("ticker", "") for s in resp.json().get("series", [])]
+        return [t for t in tickers if "HIGH" in t or "LOW" in t or "TEMP" in t]
+
+    def _fetch_temperature_markets(self, status: str = "open") -> list[MarketOut]:
+        """Fetch temperature markets per series — far fewer requests than
+        paginating the whole market list, which both rate-limits and can bury
+        temperature markets past the page cap."""
         all_markets = []
-        cursor = None
-
-        for _ in range(20):  # safety limit on pages
-            params = {"limit": 200, "status": status}
-            if cursor:
-                params["cursor"] = cursor
-
+        for series in self._fetch_temperature_series():
             try:
-                resp = self._client.get("/markets", params=params)
+                resp = self._client.get(
+                    "/markets",
+                    params={"limit": 200, "status": status, "series_ticker": series},
+                )
                 resp.raise_for_status()
             except httpx.HTTPError as e:
-                logger.warning("Kalshi API error: %s", e)
-                break
-
-            data = resp.json()
-            markets_raw = data.get("markets", [])
-            if not markets_raw:
-                break
-
-            for m in markets_raw:
+                logger.warning("Kalshi API error for series %s: %s", series, e)
+                continue
+            for m in resp.json().get("markets", []):
                 market = _parse_market_dict(m)
                 if is_temperature_market(market):
                     all_markets.append(market)
+            time.sleep(0.25)  # stay friendly with the public rate limit
 
-            cursor = data.get("cursor")
-            if not cursor:
-                break
-
-        logger.debug("Found %d temperature markets (status=%s).", len(all_markets), status)
+        logger.info("Found %d temperature markets (status=%s).", len(all_markets), status)
         return all_markets
 
     def _fetch_orderbook(self, ticker: str) -> Optional[dict]:
