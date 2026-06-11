@@ -63,7 +63,7 @@ The `app/autoresearch/` module implements an LLM-driven research loop that autom
 
 **Anti-overfitting:** Strict train/val/holdout split by `target_date`. The agent never sees holdout data. Final evaluation is manual, one-shot.
 
-**Security:** Generated code is AST-validated (import whitelist, blocked builtins) and runs in an isolated subprocess in `/tmp/` with a 60-second timeout.
+**Containment (defense-in-depth, not a security boundary):** generated code passes an AST pre-filter (import whitelist, blocked builtins) and runs in an isolated subprocess with a 60-second timeout. The AST pass alone is bypassable by dynamic-attribute escapes — [the test suite pins this explicitly](backend/app/tests/unit/test_sandbox_validator.py); the subprocess layer is what bounds buggy generated code, and truly hostile code would need a real jail.
 
 ---
 
@@ -117,11 +117,17 @@ Backend runs at `http://localhost:8000`. API docs at `http://localhost:8000/docs
 snapshots + weather features) is bundled:
 
 ```bash
-cd backend
-python -m app.autoresearch evaluate app/autoresearch/strategies/seed_strategy.py \
-    --dataset data/autoresearch/sample/backtest_sample.parquet
-# Prints Brier score, win rate, drawdown for the seed strategy in ~25s, fully offline.
+make demo   # from the repo root; offline, no keys
 ```
+
+```
+Sample set: 185 rows
+Brier Score:  0.0828  (market-implied baseline: 0.0828 — lower is better)
+```
+
+The seed strategy scores exactly the market baseline — by design, it tracks the
+market's implied probability. That's the starting line: the research loop's job is
+to evolve a strategy whose out-of-sample Brier beats it.
 
 The full loop:
 

@@ -158,11 +158,24 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     print(f"{label.capitalize()} set: {len(holdout)} rows")
+
+    # Market-implied baseline: how calibrated is the market price itself?
+    baseline_brier = None
+    if "implied_prob" in holdout.columns and "outcome" in holdout.columns:
+        scored = holdout.dropna(subset=["implied_prob", "outcome"])
+        if not scored.empty:
+            baseline_brier = float(
+                ((scored["implied_prob"] - scored["outcome"]) ** 2).mean()
+            )
+
     result = evaluator.evaluate(strategy_code, holdout, label=label)
 
     print()
     print("=" * 40)
-    print(f"Brier Score:  {result.brier_score:.4f}")
+    if baseline_brier is not None:
+        print(f"Brier Score:  {result.brier_score:.4f}  (market-implied baseline: {baseline_brier:.4f} — lower is better)")
+    else:
+        print(f"Brier Score:  {result.brier_score:.4f}")
     print(f"Sharpe Ratio: {result.sharpe_ratio:.2f}" if result.sharpe_ratio else "Sharpe Ratio: N/A")
     print(f"Max Drawdown: {result.max_drawdown:.2%}")
     print(f"Win Rate:     {result.win_rate:.1%}")
